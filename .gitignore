@@ -1,2 +1,4 @@
 *.txt
 *.html
+*.json
+__pycache__
