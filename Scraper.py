@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from datetime import *
 
 import os.path
+import config
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -42,7 +43,7 @@ def inserter(dict,creds):
         }
 
         # Call the Calendar Insert API
-        event = service.events().insert(calendarId='9e9380475a6f0032566930b75eea2fa6d0cee286c1dcf4122ce3895077c0216a@group.calendar.google.com', body=event).execute()
+        event = service.events().insert(calendarId=config.Cal_ID, body=event).execute()
         print('Event created: %s' % (event.get('htmlLink')))
 
     except HttpError as error:
