@@ -2,6 +2,7 @@ from __future__ import print_function
 import requests
 from bs4 import BeautifulSoup
 from datetime import *
+import base64
 
 import os.path
 import config
@@ -26,7 +27,10 @@ def inserter(dict,creds):
         service = build('calendar', 'v3', credentials=creds)
 
         # Template to Insert an event
+
+        # Added base32hexencode as id to avoid creating duplicate events. Hopefully it works
         event = {
+        'id':base64.b32hexencode(dict.get('event_title').encode("UTF-8")).decode("UTF-8").lower()[:-6],
         'summary': 'CS Dept Event - '+ dict.get('event_date'),
         'description': dict.get('event_title'),
         'start': {
