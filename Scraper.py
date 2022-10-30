@@ -18,8 +18,13 @@ SCOPES = ['https://www.googleapis.com/auth/calendar']
 
 # Convert time from 12 hrs to RFC3339 standard
 def time_convert(t):
-    t = datetime.strptime(t, '%I:%M%p')
-    return(t.time())
+    try:
+        t = datetime.strptime(t, '%I:%M%p')
+        return(t.time())
+    except ValueError:
+        # If only single time is mentioned then default to 00:00:00 for start time
+        print("start_date missing")  
+        return("00:00:00") 
 
 # To insert the events to Calendar via API v3
 def inserter(dict,creds):
@@ -65,7 +70,6 @@ def scraper(creds):
 
     # To add past events change class_="single-day past"
     cal3 = soup.find_all(class_="single-day future")
-    # cal3 is for future events
 
     dict = {
         'event_title':'',
@@ -94,7 +98,7 @@ def scraper(creds):
 
             dict.update({'start_time': str(time_convert(start_time))})
             dict.update({'end_time': str(time_convert(end_time))})
-        
+            
             inserter(dict,creds)
 
 
