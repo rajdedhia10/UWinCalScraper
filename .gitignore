@@ -1,7 +1,7 @@
+__pycache__
 *.txt
 *.html
 *.json
-__pycache__
-test.py
 tempCodeRunnerFile.py
 config.py
+test.py
