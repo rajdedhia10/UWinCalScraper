@@ -32,7 +32,7 @@ def inserter(dict,creds):
         event = {
         'id':base64.b32hexencode(dict.get('event_title').encode("UTF-8")).decode("UTF-8").lower()[:-6],
         'summary': 'CS Dept Event - '+ dict.get('event_date'),
-        'description': dict.get('event_title'),
+        'description': dict.get('event_title') + ',' + dict.get('event_link'),
         'start': {
             'dateTime': dict.get('event_date')+'T'+dict.get('start_time')+'-04:00',
             'timeZone': 'Canada/Eastern',
@@ -47,6 +47,11 @@ def inserter(dict,creds):
         }
 
         # Call the Calendar Insert API
+        # event = service.events().get(calendarId=config.Cal_ID, eventId='eventId').execute()
+        # print(event)
+        # updated_event = service.events().update(calendarId=config.Cal_ID, eventId=event['id'], body=event).execute()
+        # print(updated_event['updated'])
+
         event = service.events().insert(calendarId=config.Cal_ID, body=event).execute()
         print('Event created: %s' % (event.get('htmlLink')))
 
@@ -90,29 +95,49 @@ def scraper(creds):
     }
 
     for i in range (len(cal3)):
-        dict.update({'event_title': cal3[i].find(class_="event-title").text.strip()})
-        # print(event_title)
-        dict.update({'event_date': cal3[i]["data-date"]})
+        # print("\n\n")
+        # event_title = cal3[i].find(class_="event-title").text.strip()
+        event_title = cal3[i].find_all(class_="event-title")
+        # for i in range(len(event_title)):
+        # print(event_title[i].text.strip())
+        # event_date = cal3[i]["data-date"]
         # print(event_date)
-        dict.update({'event_link':"www.uwindsor.ca"+ cal3[i].find('a', href=True)['href']})
+        event_link = cal3[i].find_all('a', href=True)
+        # for i in range(len(event_link)):
+        # print("www.uwindsor.ca"+ event_link[i]['href'])
         # print(event_link)
-        dict.update({'event_time': cal3[i].find(class_="event-date").text.strip()})
-        event_time = cal3[i].find(class_="event-date").text.strip()
+        event_time = cal3[i].find_all(class_="event-date")
+        for k in range(len(event_time)):
+            event_time[k] = event_time[k].text.strip()
         # print(event_time)
 
-        start_time = event_time[:event_time.find(' ')]
-        end_time = event_time[event_time.rfind(' ')+1:]
+        for j in range(len(event_title)):
+            dict.update({'event_title': event_title[j].text.strip()})
+            # print(event_title)
+            dict.update({'event_date': cal3[i]["data-date"]})
+            # print(event_date)
+            dict.update({'event_link':"www.uwindsor.ca"+ event_link[j]['href']})
+            # print(event_link)
+            dict.update({'event_time': event_time[j]})
+            # event_time = cal3[i].find(class_="event-date").text.strip()
+            # print(event_time)
 
-        dict.update({'start_time': str(time_convert(start_time))})
-        dict.update({'end_time': str(time_convert(end_time))})
+            start_time = event_time[j][:event_time[j].find(' ')]
+            end_time = event_time[j][event_time[j].rfind(' ')+1:]
 
+            x = (base64.b32hexencode(dict.get('event_title').encode("UTF-8")))
+            # print(x.decode("UTF-8").lower()[:-6])
+            # print(base64.b32hexdecode(x).decode("UTF-8"))
+
+            dict.update({'start_time': str(time_convert(start_time))})
+            dict.update({'end_time': str(time_convert(end_time))})
         
-        # print(time_convert(start_time))
-        # print(time_convert(end_time))
-        # print(time_convert(start_time))
-        # print(time_convert(end_time))
-        # print(dict)
-        inserter(dict,creds)
+            # print(time_convert(start_time))
+            # print(time_convert(end_time))
+            # print(time_convert(start_time))
+            # print(time_convert(end_time))
+            # print(dict)
+            inserter(dict,creds)
 
 
 def main():
